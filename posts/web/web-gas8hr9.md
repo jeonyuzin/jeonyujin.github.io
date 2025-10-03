@@ -1,0 +1,22 @@
+---
+id: web-gas8hr9
+title: "untitled"
+date: 2025-10-03
+category: web
+---
+
+# 제목
+
+## STEP 1: 소개
+
+내용 작성...
+
+---
+PAGE_BREAK
+---
+
+## STEP 2: 다음 페이지
+
+계속...![이미지 설명](/images/web/web-gas8hr9/5f1wq2.jpg)
+
+test
