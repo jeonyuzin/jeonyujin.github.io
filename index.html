@@ -367,6 +367,16 @@
             margin-right: 8px;
         }
 
+        .item.active {
+            background: #ff9999;
+            color: white;
+            border-color: #d4543c;
+        }
+
+        .item.active .item-icon {
+            filter: brightness(0) invert(1);
+        }
+
         .dialog-box {
             position: absolute;
             bottom: 20px;
@@ -501,76 +511,40 @@
                 </div>
 
                 <!-- Recent Posts -->
-                <div class="recent-posts">
+                <div class="recent-posts" id="recentPostsBox" style="display: none;">
                     <div class="posts-title">📌 Recent Posts</div>
 
                     <div class="posts-container" id="recentPosts">
                         <div class="post-card" style="background: #ffe4e1;">
                             <div class="post-date">2025.10.01</div>
-                            <div class="post-title">SQL Injection 심화 분석</div>
+                            <div class="post-title">글 제목 1</div>
                             <div class="post-category">🌐 Web</div>
                         </div>
                         <div class="post-card" style="background: #e1f5ff;">
                             <div class="post-date">2025.09.28</div>
-                            <div class="post-title">Burp Suite 확장 플러그인</div>
+                            <div class="post-title">글 제목 2</div>
                             <div class="post-category">🔨 Tools</div>
-                        </div>
-                        <div class="post-card" style="background: #fff4e1;">
-                            <div class="post-date">2025.09.25</div>
-                            <div class="post-title">HackTheBox - Analytics</div>
-                            <div class="post-category">🚩 CTF</div>
-                        </div>
-                        <div class="post-card" style="background: #e8f5e1;">
-                            <div class="post-date">2025.09.20</div>
-                            <div class="post-title">Nmap 고급 스캐닝 기법</div>
-                            <div class="post-category">📡 Network</div>
                         </div>
                     </div>
 
                     <div class="posts-container" id="securityPosts" style="display: none;">
                         <div class="post-card" style="background: #ffe4e1;">
                             <div class="post-date">2025.10.01</div>
-                            <div class="post-title">SQL Injection 심화 분석</div>
+                            <div class="post-title">보안 글 1</div>
                             <div class="post-category">🌐 Web</div>
-                        </div>
-                        <div class="post-card" style="background: #fff4e1;">
-                            <div class="post-date">2025.09.25</div>
-                            <div class="post-title">HackTheBox - Analytics</div>
-                            <div class="post-category">🚩 CTF</div>
-                        </div>
-                        <div class="post-card" style="background: #e8f5e1;">
-                            <div class="post-date">2025.09.20</div>
-                            <div class="post-title">Nmap 고급 스캐닝 기법</div>
-                            <div class="post-category">📡 Network</div>
-                        </div>
-                        <div class="post-card" style="background: #f0e1ff;">
-                            <div class="post-date">2025.09.15</div>
-                            <div class="post-title">리버스 엔지니어링 기초</div>
-                            <div class="post-category">🖥️ System</div>
                         </div>
                     </div>
 
                     <div class="posts-container" id="devPosts" style="display: none;">
                         <div class="post-card" style="background: #e1ffe8;">
                             <div class="post-date">2024.08.15</div>
-                            <div class="post-title">React 프로젝트 회고</div>
+                            <div class="post-title">개발 글 1</div>
                             <div class="post-category">⚛️ test1</div>
                         </div>
-                        <div class="post-card" style="background: #e1f0ff;">
-                            <div class="post-date">2024.07.20</div>
-                            <div class="post-title">알고리즘 스터디 정리</div>
-                            <div class="post-category">📊 test2</div>
-                        </div>
-                        <div class="post-card" style="background: #fff9e1;">
-                            <div class="post-date">2024.06.10</div>
-                            <div class="post-title">Django 백엔드 개발</div>
-                            <div class="post-category">⚛️ test1</div>
-                        </div>
-                        <div class="post-card" style="background: #ffe1f5;">
-                            <div class="post-date">2024.05.05</div>
-                            <div class="post-title">자료구조 완전정복</div>
-                            <div class="post-category">📊 test2</div>
-                        </div>
+                    </div>
+
+                    <div class="posts-container" id="categoryPosts" style="display: none;">
+                        <!-- 카테고리별 글이 여기에 표시됨 -->
                     </div>
                 </div>
 
@@ -584,7 +558,7 @@
             <!-- 버튼 영역 -->
             <div class="mode-buttons-area">
                 <div class="mode-buttons-room">
-                    <button class="mode-btn-room active" onclick="switchMode('recent')">📌 최신글</button>
+                    <button class="mode-btn-room" onclick="switchMode('recent')">📌 최신글</button>
                     <button class="mode-btn-room" onclick="switchMode('security')">🔒 보안</button>
                     <button class="mode-btn-room" onclick="switchMode('dev')">💻 개발</button>
                 </div>
@@ -602,44 +576,44 @@
                     <div class="item-list-title">📂 Categories</div>
                     
                     <div id="securityCategories">
-                        <div class="item" onclick="showDialog('web', '🌐', 'Web Hacking', 'XSS, SQL Injection, CSRF, SSRF 등 웹 애플리케이션 취약점 분석 및 공격 기법을 정리합니다.')">
+                        <div class="item" onclick="showCategoryPosts('web')">
                             <span class="item-icon">🌐</span>
                             <span>Web Hacking</span>
                         </div>
 
-                        <div class="item" onclick="showDialog('network', '📡', 'Network Security', '네트워크 스캐닝, 중간자 공격, 패킷 분석 등 네트워크 레벨 보안 기술을 다룹니다.')">
+                        <div class="item" onclick="showCategoryPosts('network')">
                             <span class="item-icon">📡</span>
                             <span>Network Security</span>
                         </div>
 
-                        <div class="item" onclick="showDialog('system', '🖥️', 'System Hacking', '버퍼 오버플로우, 권한 상승, 리버스 엔지니어링 등 시스템 해킹 기법을 연구합니다.')">
+                        <div class="item" onclick="showCategoryPosts('system')">
                             <span class="item-icon">🖥️</span>
                             <span>System Hacking</span>
                         </div>
 
-                        <div class="item" onclick="showDialog('ctf', '🚩', 'CTF Writeups', '참여한 CTF 대회와 워게임 문제들의 풀이 과정을 기록합니다.')">
+                        <div class="item" onclick="showCategoryPosts('ctf')">
                             <span class="item-icon">🚩</span>
                             <span>CTF Writeups</span>
                         </div>
 
-                        <div class="item" onclick="showDialog('tools', '🔨', 'Tools & Setup', '사용하는 도구들과 환경 설정, 자동화 스크립트 등을 공유합니다.')">
+                        <div class="item" onclick="showCategoryPosts('tools')">
                             <span class="item-icon">🔨</span>
                             <span>Tools & Setup</span>
                         </div>
 
-                        <div class="item" onclick="showDialog('research', '🔬', 'Research Notes', '최신 CVE 분석, 보안 트렌드, 개인 연구 내용을 정리합니다.')">
+                        <div class="item" onclick="showCategoryPosts('research')">
                             <span class="item-icon">🔬</span>
                             <span>Research Notes</span>
                         </div>
                     </div>
 
                     <div id="devCategories" style="display: none;">
-                        <div class="item" onclick="showDialog('test1', '⚛️', 'test1', '리액트, 장고 등 웹 개발 프로젝트 기록입니다.')">
+                        <div class="item" onclick="showCategoryPosts('test1')">
                             <span class="item-icon">⚛️</span>
                             <span>test1</span>
                         </div>
 
-                        <div class="item" onclick="showDialog('test2', '📊', 'test2', '알고리즘, 자료구조 등 CS 기초 공부 내용입니다.')">
+                        <div class="item" onclick="showCategoryPosts('test2')">
                             <span class="item-icon">📊</span>
                             <span>test2</span>
                         </div>
@@ -650,6 +624,49 @@
     </div>
 
     <script>
+        // 테스트 데이터
+        const postsData = {
+            web: [
+                { date: "2025.10.01", title: "Web 글 1", category: "🌐 Web", bg: "#ffe4e1" }
+            ],
+            network: [
+                { date: "2025.09.20", title: "Network 글 1", category: "📡 Network", bg: "#e8f5e1" }
+            ],
+            system: [
+                { date: "2025.09.15", title: "System 글 1", category: "🖥️ System", bg: "#f0e1ff" }
+            ],
+            ctf: [
+                { date: "2025.09.25", title: "CTF 글 1", category: "🚩 CTF", bg: "#fff4e1" }
+            ],
+            tools: [
+                { date: "2025.09.28", title: "Tools 글 1", category: "🔨 Tools", bg: "#e1f5ff" }
+            ],
+            research: [
+                { date: "2025.09.10", title: "Research 글 1", category: "🔬 Research", bg: "#ffe1f0" }
+            ],
+            test1: [
+                { date: "2024.08.15", title: "test1 글 1", category: "⚛️ test1", bg: "#e1ffe8" }
+            ],
+            test2: [
+                { date: "2024.07.20", title: "test2 글 1", category: "📊 test2", bg: "#e1f0ff" }
+            ]
+        };
+
+        // 카테고리 이름 매핑
+        const categoryNames = {
+            web: '🌐 Web Hacking',
+            network: '📡 Network Security',
+            system: '🖥️ System Hacking',
+            ctf: '🚩 CTF Writeups',
+            tools: '🔨 Tools & Setup',
+            research: '🔬 Research Notes',
+            test1: '⚛️ test1',
+            test2: '📊 test2'
+        };
+
+        let currentMode = null;
+        let currentCategory = null;
+
         function showDialog(id, icon, title, content) {
             const dialogBox = document.getElementById('dialogBox');
             const dialogTitle = document.getElementById('dialogTitle');
@@ -667,13 +684,98 @@
 
         function showInfo(type) {
             if (type === 'home') {
-                showDialog('home', '🏠', '환영합니다!', '모의해킹과 취약점 진단을 공부하며 배운 것들을 정리하는 공간입니다.');
+                showDialog('home', '🏠', '환영합니다!', '모의해킹과 취약점 진단을 공부하는 공간입니다.');
             } else if (type === 'about') {
-                showDialog('about', '👤', 'About Me', '모의해킹 및 취약점 진단을 전문으로 하는 보안 연구자입니다.');
+                showDialog('about', '👤', 'About Me', '모의해킹 및 취약점 진단 전문 보안 연구자입니다.');
             }
         }
 
+        function showCategoryPosts(category) {
+            // 같은 카테고리 재클릭 시 홈으로
+            if (currentCategory === category) {
+                currentCategory = null;
+                document.querySelectorAll('.item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.getElementById('recentPostsBox').style.display = 'none';
+                return;
+            }
+
+            currentCategory = category;
+
+            const recentPostsBox = document.getElementById('recentPostsBox');
+            const postsTitle = document.querySelector('.posts-title');
+            const categoryPostsDiv = document.getElementById('categoryPosts');
+            const posts = postsData[category] || [];
+
+            // 모든 버튼 비활성화
+            document.querySelectorAll('.mode-btn-room').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // 모든 카테고리 아이템 비활성화
+            document.querySelectorAll('.item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // 현재 클릭한 카테고리 활성화
+            event.currentTarget.classList.add('active');
+
+            // currentMode 초기화
+            currentMode = null;
+
+            // 제목 변경
+            postsTitle.textContent = categoryNames[category] || '📌 Recent Posts';
+
+            // 박스 보이기
+            recentPostsBox.style.display = 'block';
+
+            // 모든 포스트 컨테이너 숨기기
+            document.getElementById('recentPosts').style.display = 'none';
+            document.getElementById('securityPosts').style.display = 'none';
+            document.getElementById('devPosts').style.display = 'none';
+            categoryPostsDiv.style.display = 'grid';
+
+            // 카테고리 글 렌더링
+            categoryPostsDiv.innerHTML = posts.map(post => `
+                <div class="post-card" style="background: ${post.bg};">
+                    <div class="post-date">${post.date}</div>
+                    <div class="post-title">${post.title}</div>
+                    <div class="post-category">${post.category}</div>
+                </div>
+            `).join('');
+        }
+
         function switchMode(mode) {
+            const recentPostsBox = document.getElementById('recentPostsBox');
+            const postsTitle = document.querySelector('.posts-title');
+            
+            // 같은 버튼 재클릭 시 홈으로
+            if (currentMode === mode) {
+                currentMode = null;
+                document.querySelectorAll('.mode-btn-room').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                recentPostsBox.style.display = 'none';
+                document.getElementById('securityCategories').style.display = 'block';
+                document.getElementById('devCategories').style.display = 'none';
+                return;
+            }
+
+            currentMode = mode;
+            currentCategory = null; // 카테고리 초기화
+
+            // 모든 카테고리 아이템 비활성화
+            document.querySelectorAll('.item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // 제목을 기본으로 초기화
+            postsTitle.textContent = '📌 Recent Posts';
+
+            // 박스 보이기
+            recentPostsBox.style.display = 'block';
+
             document.querySelectorAll('.mode-btn-room').forEach(btn => {
                 btn.classList.remove('active');
             });
@@ -683,6 +785,10 @@
             const recentPosts = document.getElementById('recentPosts');
             const securityPosts = document.getElementById('securityPosts');
             const devPosts = document.getElementById('devPosts');
+            const categoryPosts = document.getElementById('categoryPosts');
+
+            // 카테고리 글 숨기기
+            categoryPosts.style.display = 'none';
 
             if (mode === 'recent') {
                 document.querySelectorAll('.mode-btn-room')[0].classList.add('active');
@@ -712,12 +818,6 @@
             if (e.key === 'Escape') {
                 closeDialog();
             }
-        });
-
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                showInfo('home');
-            }, 500);
         });
     </script>
 </body>
