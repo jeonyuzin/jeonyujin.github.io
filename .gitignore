@@ -1,0 +1,9 @@
+# Node modules
+node_modules/
+
+# 스크립트 (토큰 포함되어 있어서 위험)
+scripts/auto-upload.js
+
+# npm 설정
+package.json
+package-lock.json
