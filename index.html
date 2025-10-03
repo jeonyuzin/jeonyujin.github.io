@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Room - Jeon Yuzin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 1000px;
+            background: #f4e4c1;
+            border-radius: 20px;
+            border: 8px solid #8b4513;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .game-header {
+            background: linear-gradient(to bottom, #d4a574, #c99966);
+            border-bottom: 4px solid #8b4513;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .game-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4a2511;
+            text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+        }
+
+        .game-menu {
+            display: flex;
+            gap: 10px;
+        }
+
+        .menu-btn {
+            background: #fff;
+            border: 2px solid #8b4513;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #4a2511;
+            transition: all 0.2s;
+        }
+
+        .menu-btn:hover {
+            background: #ffe4b5;
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 250px;
+            gap: 0;
+            background: #f9f5e8;
+        }
+
+        .room-area {
+            position: relative;
+            aspect-ratio: 4/3;
+            background: linear-gradient(to bottom, #e8dcc4 0%, #d4c4a8 100%);
+            border-right: 4px solid #8b4513;
+            overflow: hidden;
+        }
+
+        .room-floor {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%) perspective(600px) rotateX(60deg);
+            width: 80%;
+            height: 60%;
+            background: 
+                repeating-linear-gradient(
+                    90deg,
+                    #c4a57b 0px,
+                    #c4a57b 40px,
+                    #b8996f 40px,
+                    #b8996f 42px
+                ),
+                repeating-linear-gradient(
+                    0deg,
+                    #c4a57b 0px,
+                    #c4a57b 40px,
+                    #b8996f 40px,
+                    #b8996f 42px
+                );
+        }
+
+        .room-wall-left {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 30%;
+            height: 70%;
+            background: linear-gradient(to right, #f4e4c1, #e8d8b4);
+            border-right: 2px solid #d4c4a8;
+            transform-origin: bottom right;
+            transform: perspective(600px) rotateY(-45deg);
+        }
+
+        .room-wall-right {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 30%;
+            height: 70%;
+            background: linear-gradient(to left, #f4e4c1, #e8d8b4);
+            border-left: 2px solid #d4c4a8;
+            transform-origin: bottom left;
+            transform: perspective(600px) rotateY(45deg);
+        }
+
+        .object {
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .object:hover {
+            transform: translateY(-10px) scale(1.1);
+            filter: brightness(1.2);
+        }
+
+        .object-icon {
+            font-size: 3rem;
+            display: block;
+            filter: drop-shadow(3px 3px 5px rgba(0,0,0,0.3));
+        }
+
+        .object-label {
+            background: rgba(255,255,255,0.9);
+            border: 2px solid #8b4513;
+            border-radius: 8px;
+            padding: 3px 8px;
+            margin-top: 5px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #4a2511;
+            display: inline-block;
+        }
+
+        .sidebar {
+            background: #fff9e6;
+            padding: 15px;
+            border-left: 2px solid #d4a574;
+            overflow-y: auto;
+            max-height: 600px;
+        }
+
+        .profile-section {
+            background: white;
+            border: 3px solid #ff9999;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .character-img {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            border: 3px solid #ff9999;
+        }
+
+        .profile-name {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #4a2511;
+            margin-bottom: 5px;
+        }
+
+        .profile-role {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .item-list {
+            background: white;
+            border: 3px solid #99ccff;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
+        .mode-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: auto;
+            padding-top: 15px;
+        }
+
+        .mode-btn {
+            background: white;
+            border: 3px solid #ff9999;
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            color: #4a2511;
+            transition: all 0.3s ease;
+            font-family: 'Malgun Gothic', sans-serif;
+            box-shadow: 3px 3px 8px rgba(0,0,0,0.1);
+        }
+
+        .mode-btn:hover {
+            background: #ffe4e4;
+            transform: translateY(-3px);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.15);
+        }
+
+        .mode-btn.active {
+            background: #ff9999;
+            color: white;
+            box-shadow: 0 4px 15px rgba(255,153,153,0.5);
+            transform: scale(1.02);
+        }
+
+        .item-list-title {
+            font-weight: bold;
+            color: #4a2511;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            text-align: center;
+            background: #e6f3ff;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .item {
+            background: #f0f8ff;
+            border: 2px solid #99ccff;
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .item:hover {
+            background: #cce6ff;
+            transform: translateX(5px);
+        }
+
+        .item-icon {
+            font-size: 1.5rem;
+            margin-right: 8px;
+        }
+
+        .dialog-box {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.95);
+            border: 4px solid #8b4513;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 100;
+        }
+
+        .dialog-box.active {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dialog-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #4a2511;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dialog-content {
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .close-btn:hover {
+            background: #ff5252;
+        }
+
+        .recent-posts {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.95);
+            border: 4px solid #8b4513;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .mode-buttons-room {
+            position: static;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .mode-btn-room {
+            flex: 1;
+            background: rgba(255,255,255,0.95);
+            border: 4px solid #8b4513;
+            border-radius: 12px;
+            padding: 18px 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #4a2511;
+            transition: all 0.3s ease;
+            font-family: 'Malgun Gothic', sans-serif;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .mode-btn-room:hover {
+            background: #ffe4b5;
+            transform: translateY(-5px);
+            box-shadow: 5px 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .mode-btn-room.active {
+            background: #ff9999;
+            color: white;
+            box-shadow: 0 6px 20px rgba(255,153,153,0.5);
+            border-color: #d4543c;
+        }
+
+        .posts-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #4a2511;
+            margin-bottom: 10px;
+            text-align: center;
+            background: linear-gradient(to right, #ffe4b5, #ffd8a8);
+            padding: 8px;
+            border-radius: 8px;
+            border: 2px solid #d4a574;
+        }
+
+        .mode-buttons {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: auto;
+            padding-top: 15px;
+        }
+
+        .mode-btn {
+            background: white;
+            border: 3px solid #ff9999;
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            color: #4a2511;
+            transition: all 0.3s ease;
+            font-family: 'Malgun Gothic', sans-serif;
+            box-shadow: 3px 3px 8px rgba(0,0,0,0.1);
+        }
+
+        .mode-btn:hover {
+            background: #ffe4e4;
+            transform: translateY(-3px);
+            box-shadow: 5px 5px 12px rgba(0,0,0,0.15);
+        }
+
+        .mode-btn.active {
+            background: #ff9999;
+            color: white;
+            box-shadow: 0 4px 15px rgba(255,153,153,0.5);
+            transform: scale(1.02);
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            background: white;
+            border: 3px solid #8b4513;
+            padding: 8px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #4a2511;
+            transition: all 0.3s ease;
+            font-family: 'Malgun Gothic', sans-serif;
+        }
+
+        .tab-btn:hover {
+            background: #ffe4b5;
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            background: #ff9999;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            background: white;
+            border: 3px solid #8b4513;
+            padding: 8px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #4a2511;
+            transition: all 0.3s ease;
+            font-family: 'Malgun Gothic', sans-serif;
+        }
+
+        .tab-btn:hover {
+            background: #ffe4b5;
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            background: #ff9999;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .posts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .post-card {
+            padding: 12px;
+            border: 3px solid #8b4513;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 3px 3px 8px rgba(0,0,0,0.2);
+            transform: rotate(-1deg);
+        }
+
+        .post-card:nth-child(even) {
+            transform: rotate(1deg);
+        }
+
+        .post-card:hover {
+            transform: rotate(0deg) translateY(-5px) scale(1.05);
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+
+        .post-date {
+            font-size: 0.75rem;
+            color: #666;
+            margin-bottom: 5px;
+            font-family: monospace;
+        }
+
+        .post-title {
+            font-weight: bold;
+            font-size: 0.95rem;
+            color: #2c2416;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .post-category {
+            font-size: 0.8rem;
+            background: rgba(255,255,255,0.8);
+            padding: 3px 8px;
+            border-radius: 5px;
+            display: inline-block;
+            border: 1px solid #8b4513;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .room-area {
+                aspect-ratio: 3/4;
+            }
+
+            .sidebar {
+                max-height: 400px;
+            }
+
+            .object-icon {
+                font-size: 2rem;
+            }
+
+            .recent-posts {
+                bottom: 80px;
+                left: 10px;
+                right: 10px;
+                padding: 10px;
+            }
+
+            .mode-buttons-room {
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                gap: 8px;
+            }
+
+            .mode-btn-room {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+
+            .posts-container {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .post-card {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <div class="game-title">🔒 Security Room</div>
+            <div class="game-menu">
+                <button class="menu-btn" onclick="showInfo('home')">홈</button>
+                <button class="menu-btn" onclick="showInfo('about')">소개</button>
+                <button class="menu-btn" onclick="window.open('https://github.com/jeonyujin')">GitHub</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="room-area">
+                <div class="object" style="left: 20%; bottom: 35%;" onclick="showDialog('burp', '🔧', 'Burp Suite', 'Web Application 취약점 진단의 필수 도구입니다. Proxy, Scanner, Intruder 등의 기능으로 웹 해킹 전반을 커버합니다.')">
+                    <span class="object-icon">🔧</span>
+                    <span class="object-label">Burp Suite</span>
+                </div>
+
+                <div class="object" style="left: 45%; bottom: 30%;" onclick="showDialog('computer', '💻', 'Kali Linux', '모의해킹 전용 OS로 다양한 보안 도구가 사전 설치되어 있습니다. 메인 작업 환경입니다.')">
+                    <span class="object-icon">💻</span>
+                    <span class="object-label">Kali Linux</span>
+                </div>
+
+                <div class="object" style="right: 25%; bottom: 38%;" onclick="showDialog('book', '📚', 'Research', 'CVE 분석, 제로데이 연구, 최신 보안 트렌드를 공부하고 정리하는 공간입니다.')">
+                    <span class="object-icon">📚</span>
+                    <span class="object-label">Research</span>
+                </div>
+
+                <div class="object" style="left: 35%; bottom: 50%;" onclick="showDialog('network', '🌐', 'Wireshark', '네트워크 패킷 분석 도구로 트래픽을 심층 분석합니다.')">
+                    <span class="object-icon">🌐</span>
+                    <span class="object-label">Wireshark</span>
+                </div>
+
+                <div class="object" style="right: 15%; bottom: 25%;" onclick="showDialog('terminal', '⚡', 'Metasploit', 'Exploit Framework로 침투 테스트를 수행합니다.')">
+                    <span class="object-icon">⚡</span>
+                    <span class="object-label">Metasploit</span>
+                </div>
+
+                <!-- 최근 글 섹션 -->
+                <div class="recent-posts">
+                    <div class="posts-title">📌 Recent Posts</div>
+
+                    <!-- 최신글 (전체) -->
+                    <div class="posts-container" id="recentPosts">
+                        <div class="post-card" style="background: #ffe4e1;">
+                            <div class="post-date">2025.10.01</div>
+                            <div class="post-title">SQL Injection 심화 분석</div>
+                            <div class="post-category">🌐 Web</div>
+                        </div>
+                        <div class="post-card" style="background: #e1f5ff;">
+                            <div class="post-date">2025.09.28</div>
+                            <div class="post-title">Burp Suite 확장 플러그인</div>
+                            <div class="post-category">🔨 Tools</div>
+                        </div>
+                        <div class="post-card" style="background: #fff4e1;">
+                            <div class="post-date">2025.09.25</div>
+                            <div class="post-title">HackTheBox - Analytics</div>
+                            <div class="post-category">🚩 CTF</div>
+                        </div>
+                        <div class="post-card" style="background: #e8f5e1;">
+                            <div class="post-date">2025.09.20</div>
+                            <div class="post-title">Nmap 고급 스캐닝 기법</div>
+                            <div class="post-category">📡 Network</div>
+                        </div>
+                    </div>
+
+                    <!-- 보안 글만 -->
+                    <div class="posts-container" id="securityPosts" style="display: none;">
+                        <div class="post-card" style="background: #ffe4e1;">
+                            <div class="post-date">2025.10.01</div>
+                            <div class="post-title">SQL Injection 심화 분석</div>
+                            <div class="post-category">🌐 Web</div>
+                        </div>
+                        <div class="post-card" style="background: #fff4e1;">
+                            <div class="post-date">2025.09.25</div>
+                            <div class="post-title">HackTheBox - Analytics</div>
+                            <div class="post-category">🚩 CTF</div>
+                        </div>
+                        <div class="post-card" style="background: #e8f5e1;">
+                            <div class="post-date">2025.09.20</div>
+                            <div class="post-title">Nmap 고급 스캐닝 기법</div>
+                            <div class="post-category">📡 Network</div>
+                        </div>
+                        <div class="post-card" style="background: #f0e1ff;">
+                            <div class="post-date">2025.09.15</div>
+                            <div class="post-title">리버스 엔지니어링 기초</div>
+                            <div class="post-category">🖥️ System</div>
+                        </div>
+                    </div>
+
+                    <!-- 개발 글만 -->
+                    <div class="posts-container" id="devPosts" style="display: none;">
+                        <div class="post-card" style="background: #e1ffe8;">
+                            <div class="post-date">2024.08.15</div>
+                            <div class="post-title">React 프로젝트 회고</div>
+                            <div class="post-category">⚛️ test1</div>
+                        </div>
+                        <div class="post-card" style="background: #e1f0ff;">
+                            <div class="post-date">2024.07.20</div>
+                            <div class="post-title">알고리즘 스터디 정리</div>
+                            <div class="post-category">📊 test2</div>
+                        </div>
+                        <div class="post-card" style="background: #fff9e1;">
+                            <div class="post-date">2024.06.10</div>
+                            <div class="post-title">Django 백엔드 개발</div>
+                            <div class="post-category">⚛️ test1</div>
+                        </div>
+                        <div class="post-card" style="background: #ffe1f5;">
+                            <div class="post-date">2024.05.05</div>
+                            <div class="post-title">자료구조 완전정복</div>
+                            <div class="post-category">📊 test2</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dialog-box" id="dialogBox">
+                    <button class="close-btn" onclick="closeDialog()">✕</button>
+                    <div class="dialog-title" id="dialogTitle"></div>
+                    <div class="dialog-content" id="dialogContent"></div>
+                </div>
+            </div>
+
+            <!-- 버튼 영역 (독립) -->
+            <div class="mode-buttons-area">
+                <div class="mode-buttons-room">
+                    <button class="mode-btn-room active" onclick="switchMode('recent')">📌 최신글</button>
+                    <button class="mode-btn-room" onclick="switchMode('security')">🔒 보안</button>
+                    <button class="mode-btn-room" onclick="switchMode('dev')">💻 개발</button>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="profile-section">
+                    <div class="character-img">🧑‍💻</div>
+                    <div class="profile-name">Jeon Yuzin</div>
+                    <div class="profile-role">Penetration Tester</div>
+                </div>
+
+                <div class="item-list">
+                    <div class="item-list-title">📂 Categories</div>
+                    
+                    <div id="securityCategories">
+                        <div class="item" onclick="showDialog('web', '🌐', 'Web Hacking', 'XSS, SQL Injection, CSRF, SSRF 등 웹 애플리케이션 취약점 분석 및 공격 기법을 정리합니다.')">
+                            <span class="item-icon">🌐</span>
+                            <span>Web Hacking</span>
+                        </div>
+
+                        <div class="item" onclick="showDialog('network', '📡', 'Network Security', '네트워크 스캐닝, 중간자 공격, 패킷 분석 등 네트워크 레벨 보안 기술을 다룹니다.')">
+                            <span class="item-icon">📡</span>
+                            <span>Network Security</span>
+                        </div>
+
+                        <div class="item" onclick="showDialog('system', '🖥️', 'System Hacking', '버퍼 오버플로우, 권한 상승, 리버스 엔지니어링 등 시스템 해킹 기법을 연구합니다.')">
+                            <span class="item-icon">🖥️</span>
+                            <span>System Hacking</span>
+                        </div>
+
+                        <div class="item" onclick="showDialog('ctf', '🚩', 'CTF Writeups', '참여한 CTF 대회와 워게임 문제들의 풀이 과정을 기록합니다.')">
+                            <span class="item-icon">🚩</span>
+                            <span>CTF Writeups</span>
+                        </div>
+
+                        <div class="item" onclick="showDialog('tools', '🔨', 'Tools & Setup', '사용하는 도구들과 환경 설정, 자동화 스크립트 등을 공유합니다.')">
+                            <span class="item-icon">🔨</span>
+                            <span>Tools & Setup</span>
+                        </div>
+
+                        <div class="item" onclick="showDialog('research', '🔬', 'Research Notes', '최신 CVE 분석, 보안 트렌드, 개인 연구 내용을 정리합니다.')">
+                            <span class="item-icon">🔬</span>
+                            <span>Research Notes</span>
+                        </div>
+                    </div>
+
+                    <div id="devCategories" style="display: none;">
+                        <div class="item" onclick="showDialog('test1', '⚛️', 'test1', '리액트, 장고 등 웹 개발 프로젝트 기록입니다.')">
+                            <span class="item-icon">⚛️</span>
+                            <span>test1</span>
+                        </div>
+
+                        <div class="item" onclick="showDialog('test2', '📊', 'test2', '알고리즘, 자료구조 등 CS 기초 공부 내용입니다.')">
+                            <span class="item-icon">📊</span>
+                            <span>test2</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showDialog(id, icon, title, content) {
+            const dialogBox = document.getElementById('dialogBox');
+            const dialogTitle = document.getElementById('dialogTitle');
+            const dialogContent = document.getElementById('dialogContent');
+
+            dialogTitle.innerHTML = `<span style="font-size: 2rem;">${icon}</span> ${title}`;
+            dialogContent.textContent = content;
+            
+            dialogBox.classList.add('active');
+        }
+
+        function closeDialog() {
+            document.getElementById('dialogBox').classList.remove('active');
+        }
+
+        function showInfo(type) {
+            if (type === 'home') {
+                showDialog('home', '🏠', '환영합니다!', '이곳은 모의해킹과 취약점 진단을 공부하며 배운 것들을 정리하는 공간입니다. 방 안의 오브젝트를 클릭하거나 오른쪽 카테고리를 선택해보세요!');
+            } else if (type === 'about') {
+                showDialog('about', '👤', 'About Me', '모의해킹 및 취약점 진단을 전문으로 하는 보안 연구자입니다. 끊임없이 학습하고, 발견한 것들을 기록하며, 보안 커뮤니티와 지식을 공유합니다.');
+            }
+        }
+
+        // ESC 키로 다이얼로그 닫기
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeDialog();
+            }
+        });
+
+        // 페이지 로드시 환영 메시지
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                showInfo('home');
+            }, 500);
+        });
+
+        // 탭 전환 함수
+        function switchTab(tab) {
+            // 모든 탭 버튼 비활성화
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // 모든 포스트 컨테이너 숨기기
+            document.getElementById('recentPosts').style.display = 'none';
+            document.getElementById('securityPosts').style.display = 'none';
+            document.getElementById('devPosts').style.display = 'none';
+
+            // 선택된 탭 활성화
+            if (tab === 'recent') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('recentPosts').style.display = 'grid';
+            } else if (tab === 'security') {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('securityPosts').style.display = 'grid';
+            } else if (tab === 'dev') {
+                document.querySelectorAll('.tab-btn')[2].classList.add('active');
+                document.getElementById('devPosts').style.display = 'grid';
+            }
+        }
+
+        // 모드 전환 함수 (사이드바 + 포스트)
+        function switchMode(mode) {
+            // 모든 모드 버튼 비활성화
+            document.querySelectorAll('.mode-btn-room').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // 카테고리 전환
+            const securityCat = document.getElementById('securityCategories');
+            const devCat = document.getElementById('devCategories');
+            
+            // 포스트 전환
+            const recentPosts = document.getElementById('recentPosts');
+            const securityPosts = document.getElementById('securityPosts');
+            const devPosts = document.getElementById('devPosts');
+
+            if (mode === 'recent') {
+                // 최신글: 보안 카테고리 표시, 전체 최신글 표시
+                document.querySelectorAll('.mode-btn-room')[0].classList.add('active');
+                securityCat.style.display = 'block';
+                devCat.style.display = 'none';
+                recentPosts.style.display = 'grid';
+                securityPosts.style.display = 'none';
+                devPosts.style.display = 'none';
+            } else if (mode === 'security') {
+                // 보안: 보안 카테고리 표시, 보안 글만 표시
+                document.querySelectorAll('.mode-btn-room')[1].classList.add('active');
+                securityCat.style.display = 'block';
+                devCat.style.display = 'none';
+                recentPosts.style.display = 'none';
+                securityPosts.style.display = 'grid';
+                devPosts.style.display = 'none';
+            } else if (mode === 'dev') {
+                // 개발: 개발 카테고리 표시, 개발 글만 표시
+                document.querySelectorAll('.mode-btn-room')[2].classList.add('active');
+                securityCat.style.display = 'none';
+                devCat.style.display = 'block';
+                recentPosts.style.display = 'none';
+                securityPosts.style.display = 'none';
+                devPosts.style.display = 'grid';
+            }
+        }
+    </script>
+</body>
+</html>
