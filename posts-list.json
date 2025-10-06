@@ -1,0 +1,22 @@
+{
+  "posts": [
+    {
+      "id": "web-gas8hr9",
+      "title": "untitled",
+      "date": "2025-10-03",
+      "category": "web",
+      "path": "/posts/web/web-gas8hr9.md"
+    }
+  ],
+  "byCategory": {
+    "web": [
+      {
+        "id": "web-gas8hr9",
+        "title": "untitled",
+        "date": "2025-10-03",
+        "category": "web",
+        "path": "/posts/web/web-gas8hr9.md"
+      }
+    ]
+  }
+}

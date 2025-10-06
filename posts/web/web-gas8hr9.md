@@ -17,6 +17,6 @@ PAGE_BREAK
 
 ## STEP 2: 다음 페이지
 
-계속...![이미지 설명](/images/web/web-gas8hr9/5f1wq2.jpg)
+계속...![이미지 설명](/images/web/web-gas8hr9/e0d0541257.jpg)
 
 test

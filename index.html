@@ -192,6 +192,63 @@
             border: 2px solid #d4a574;
         }
 
+        .search-box {
+            margin-bottom: 10px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #8b4513;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: white;
+            box-sizing: border-box;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #ff9999;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 2px solid #d4a574;
+        }
+
+        .page-btn {
+            background: white;
+            border: 2px solid #8b4513;
+            padding: 5px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #4a2511;
+            transition: all 0.2s;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: #ffe4b5;
+            transform: translateY(-2px);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            font-size: 0.9rem;
+            color: #4a2511;
+            font-weight: bold;
+        }
+
         .posts-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -379,6 +436,7 @@
 
         .dialog-box {
             position: absolute;
+            top: 20px;
             bottom: 20px;
             left: 20px;
             right: 20px;
@@ -386,9 +444,11 @@
             border: 4px solid #8b4513;
             border-radius: 15px;
             padding: 20px;
+            padding-right: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             display: none;
             z-index: 100;
+            overflow-y: auto;
         }
 
         .dialog-box.active {
@@ -514,6 +574,10 @@
                 <div class="recent-posts" id="recentPostsBox" style="display: none;">
                     <div class="posts-title">📌 Recent Posts</div>
 
+                    <div class="search-box">
+                        <input type="text" class="search-input" id="searchInput" placeholder="🔍 제목으로 검색...">
+                    </div>
+
                     <div class="posts-container" id="recentPosts">
                         <div class="post-card" style="background: #ffe4e1;">
                             <div class="post-date">2025.10.01</div>
@@ -546,6 +610,12 @@
                     <div class="posts-container" id="categoryPosts" style="display: none;">
                         <!-- 카테고리별 글이 여기에 표시됨 -->
                     </div>
+
+                    <div class="pagination" id="pagination" style="display: none;">
+                        <button class="page-btn" id="prevBtn" onclick="changePage(-1)">◀ 이전</button>
+                        <span class="page-info" id="pageInfo">1 / 1</span>
+                        <button class="page-btn" id="nextBtn" onclick="changePage(1)">다음 ▶</button>
+                    </div>
                 </div>
 
                 <div class="dialog-box" id="dialogBox">
@@ -560,7 +630,7 @@
                 <div class="mode-buttons-room">
                     <button class="mode-btn-room" onclick="switchMode('recent')">📌 최신글</button>
                     <button class="mode-btn-room" onclick="switchMode('security')">🔒 보안</button>
-                    <button class="mode-btn-room" onclick="switchMode('dev')">💻 개발</button>
+                    <button class="mode-btn-room" onclick="switchMode('etc')">📝 기타</button>
                 </div>
             </div>
 
@@ -581,14 +651,19 @@
                             <span>Web Hacking</span>
                         </div>
 
-                        <div class="item" onclick="showCategoryPosts('network')">
-                            <span class="item-icon">📡</span>
-                            <span>Network Security</span>
+                        <div class="item" onclick="showCategoryPosts('android')">
+                            <span class="item-icon">📱</span>
+                            <span>Android Security</span>
                         </div>
 
-                        <div class="item" onclick="showCategoryPosts('system')">
-                            <span class="item-icon">🖥️</span>
-                            <span>System Hacking</span>
+                        <div class="item" onclick="showCategoryPosts('ios')">
+                            <span class="item-icon">🍎</span>
+                            <span>iOS Security</span>
+                        </div>
+
+                        <div class="item" onclick="showCategoryPosts('windowsad')">
+                            <span class="item-icon">🪟</span>
+                            <span>Windows AD</span>
                         </div>
 
                         <div class="item" onclick="showCategoryPosts('ctf')">
@@ -600,22 +675,12 @@
                             <span class="item-icon">🔨</span>
                             <span>Tools & Setup</span>
                         </div>
-
-                        <div class="item" onclick="showCategoryPosts('research')">
-                            <span class="item-icon">🔬</span>
-                            <span>Research Notes</span>
-                        </div>
                     </div>
 
-                    <div id="devCategories" style="display: none;">
-                        <div class="item" onclick="showCategoryPosts('test1')">
-                            <span class="item-icon">⚛️</span>
-                            <span>test1</span>
-                        </div>
-
-                        <div class="item" onclick="showCategoryPosts('test2')">
-                            <span class="item-icon">📊</span>
-                            <span>test2</span>
+                    <div id="etcCategories" style="display: none;">
+                        <div class="item" onclick="showCategoryPosts('etc')">
+                            <span class="item-icon">📝</span>
+                            <span>ETC</span>
                         </div>
                     </div>
                 </div>
@@ -624,48 +689,137 @@
     </div>
 
     <script>
-        // 테스트 데이터
-        const postsData = {
-            web: [
-                { date: "2025.10.01", title: "Web 글 1", category: "🌐 Web", bg: "#ffe4e1" }
-            ],
-            network: [
-                { date: "2025.09.20", title: "Network 글 1", category: "📡 Network", bg: "#e8f5e1" }
-            ],
-            system: [
-                { date: "2025.09.15", title: "System 글 1", category: "🖥️ System", bg: "#f0e1ff" }
-            ],
-            ctf: [
-                { date: "2025.09.25", title: "CTF 글 1", category: "🚩 CTF", bg: "#fff4e1" }
-            ],
-            tools: [
-                { date: "2025.09.28", title: "Tools 글 1", category: "🔨 Tools", bg: "#e1f5ff" }
-            ],
-            research: [
-                { date: "2025.09.10", title: "Research 글 1", category: "🔬 Research", bg: "#ffe1f0" }
-            ],
-            test1: [
-                { date: "2024.08.15", title: "test1 글 1", category: "⚛️ test1", bg: "#e1ffe8" }
-            ],
-            test2: [
-                { date: "2024.07.20", title: "test2 글 1", category: "📊 test2", bg: "#e1f0ff" }
-            ]
+        // 카테고리별 배경색
+        const categoryColors = {
+            web: "#ffe4e1",
+            android: "#e8f5e1",
+            ios: "#f0e1ff",
+            windowsad: "#fff4e1",
+            ctf: "#e1f5ff",
+            tools: "#ffe1f0",
+            etc: "#f5f5f5"
         };
+
+        let postsData = {};
+        let allPosts = [];
+        let currentPage = 1;
+        let postsPerPage = 6;
+        let filteredPosts = [];
+        let searchQuery = '';
+
+        // JSON 데이터 로드 (파일 목록만)
+        fetch('posts-list.json')
+            .then(response => response.json())
+            .then(data => {
+                postsData = data.byCategory || {};
+                allPosts = data.posts || [];
+                console.log('Loaded posts:', allPosts.length);
+            })
+            .catch(error => {
+                console.error('Error loading posts:', error);
+            });
+
+        // 검색 입력 이벤트
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', (e) => {
+                searchQuery = e.target.value.toLowerCase();
+                currentPage = 1;
+                renderCurrentView();
+            });
+        });
 
         // 카테고리 이름 매핑
         const categoryNames = {
             web: '🌐 Web Hacking',
-            network: '📡 Network Security',
-            system: '🖥️ System Hacking',
+            android: '📱 Android Security',
+            ios: '🍎 iOS Security',
+            windowsad: '🪟 Windows AD',
             ctf: '🚩 CTF Writeups',
             tools: '🔨 Tools & Setup',
-            research: '🔬 Research Notes',
-            test1: '⚛️ test1',
-            test2: '📊 test2'
+            etc: '📝 ETC'
         };
 
         let currentMode = null;
         let currentCategory = null;
+
+        function filterPosts(posts) {
+            if (!searchQuery) return posts;
+            return posts.filter(post =>
+                post.title.toLowerCase().includes(searchQuery)
+            );
+        }
+
+        function renderPosts(posts, containerId) {
+            const container = document.getElementById(containerId);
+
+            // 검색 필터링
+            filteredPosts = filterPosts(posts);
+
+            // 페이징 계산
+            const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
+            const startIdx = (currentPage - 1) * postsPerPage;
+            const endIdx = startIdx + postsPerPage;
+            const paginatedPosts = filteredPosts.slice(startIdx, endIdx);
+
+            // 포스트 렌더링
+            container.innerHTML = paginatedPosts.map(post => {
+                const bg = categoryColors[post.category] || '#f0f0f0';
+                const categoryIcon = categoryNames[post.category] || post.category;
+                return `
+                    <div class="post-card" style="background: ${bg};" onclick="showPostContent('${post.id}')">
+                        <div class="post-date">${post.date}</div>
+                        <div class="post-title">${post.title}</div>
+                        <div class="post-category">${categoryIcon}</div>
+                    </div>
+                `;
+            }).join('');
+
+            // 페이징 UI 업데이트
+            updatePagination(totalPages);
+        }
+
+        function updatePagination(totalPages) {
+            const pagination = document.getElementById('pagination');
+            const pageInfo = document.getElementById('pageInfo');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            if (totalPages > 1) {
+                pagination.style.display = 'flex';
+                pageInfo.textContent = `${currentPage} / ${totalPages}`;
+                prevBtn.disabled = currentPage === 1;
+                nextBtn.disabled = currentPage === totalPages;
+            } else {
+                pagination.style.display = 'none';
+            }
+        }
+
+        function changePage(direction) {
+            currentPage += direction;
+            renderCurrentView();
+        }
+
+        function renderCurrentView() {
+            if (currentCategory) {
+                const posts = postsData[currentCategory] || [];
+                renderPosts(posts, 'categoryPosts');
+            } else if (currentMode === 'recent') {
+                renderPosts(allPosts, 'recentPosts');
+            } else if (currentMode === 'security') {
+                const securityPosts = Object.keys(postsData)
+                    .filter(cat => ['web', 'android', 'ios', 'windowsad', 'ctf', 'tools'].includes(cat))
+                    .flatMap(cat => postsData[cat] || [])
+                    .sort((a, b) => new Date(b.date) - new Date(a.date));
+                renderPosts(securityPosts, 'securityPosts');
+            } else if (currentMode === 'etc') {
+                const etcPosts = Object.keys(postsData)
+                    .filter(cat => ['etc'].includes(cat))
+                    .flatMap(cat => postsData[cat] || [])
+                    .sort((a, b) => new Date(b.date) - new Date(a.date));
+                renderPosts(etcPosts, 'devPosts');
+            }
+        }
 
         function showDialog(id, icon, title, content) {
             const dialogBox = document.getElementById('dialogBox');
@@ -691,6 +845,9 @@
         }
 
         function showCategoryPosts(category) {
+            // 다이얼로그 닫기
+            closeDialog();
+
             // 같은 카테고리 재클릭 시 홈으로
             if (currentCategory === category) {
                 currentCategory = null;
@@ -702,11 +859,12 @@
             }
 
             currentCategory = category;
+            currentPage = 1;
+            searchQuery = '';
+            document.getElementById('searchInput').value = '';
 
             const recentPostsBox = document.getElementById('recentPostsBox');
             const postsTitle = document.querySelector('.posts-title');
-            const categoryPostsDiv = document.getElementById('categoryPosts');
-            const posts = postsData[category] || [];
 
             // 모든 버튼 비활성화
             document.querySelectorAll('.mode-btn-room').forEach(btn => {
@@ -734,22 +892,19 @@
             document.getElementById('recentPosts').style.display = 'none';
             document.getElementById('securityPosts').style.display = 'none';
             document.getElementById('devPosts').style.display = 'none';
-            categoryPostsDiv.style.display = 'grid';
+            document.getElementById('categoryPosts').style.display = 'grid';
 
             // 카테고리 글 렌더링
-            categoryPostsDiv.innerHTML = posts.map(post => `
-                <div class="post-card" style="background: ${post.bg};">
-                    <div class="post-date">${post.date}</div>
-                    <div class="post-title">${post.title}</div>
-                    <div class="post-category">${post.category}</div>
-                </div>
-            `).join('');
+            renderCurrentView();
         }
 
         function switchMode(mode) {
             const recentPostsBox = document.getElementById('recentPostsBox');
             const postsTitle = document.querySelector('.posts-title');
-            
+
+            // 다이얼로그 닫기
+            closeDialog();
+
             // 같은 버튼 재클릭 시 홈으로
             if (currentMode === mode) {
                 currentMode = null;
@@ -758,12 +913,15 @@
                 });
                 recentPostsBox.style.display = 'none';
                 document.getElementById('securityCategories').style.display = 'block';
-                document.getElementById('devCategories').style.display = 'none';
+                document.getElementById('etcCategories').style.display = 'none';
                 return;
             }
 
             currentMode = mode;
-            currentCategory = null; // 카테고리 초기화
+            currentCategory = null;
+            currentPage = 1;
+            searchQuery = '';
+            document.getElementById('searchInput').value = '';
 
             // 모든 카테고리 아이템 비활성화
             document.querySelectorAll('.item').forEach(item => {
@@ -781,7 +939,7 @@
             });
 
             const securityCat = document.getElementById('securityCategories');
-            const devCat = document.getElementById('devCategories');
+            const etcCat = document.getElementById('etcCategories');
             const recentPosts = document.getElementById('recentPosts');
             const securityPosts = document.getElementById('securityPosts');
             const devPosts = document.getElementById('devPosts');
@@ -793,25 +951,87 @@
             if (mode === 'recent') {
                 document.querySelectorAll('.mode-btn-room')[0].classList.add('active');
                 securityCat.style.display = 'block';
-                devCat.style.display = 'none';
+                etcCat.style.display = 'none';
                 recentPosts.style.display = 'grid';
                 securityPosts.style.display = 'none';
                 devPosts.style.display = 'none';
             } else if (mode === 'security') {
                 document.querySelectorAll('.mode-btn-room')[1].classList.add('active');
                 securityCat.style.display = 'block';
-                devCat.style.display = 'none';
+                etcCat.style.display = 'none';
                 recentPosts.style.display = 'none';
                 securityPosts.style.display = 'grid';
                 devPosts.style.display = 'none';
-            } else if (mode === 'dev') {
+            } else if (mode === 'etc') {
                 document.querySelectorAll('.mode-btn-room')[2].classList.add('active');
                 securityCat.style.display = 'none';
-                devCat.style.display = 'block';
+                etcCat.style.display = 'block';
                 recentPosts.style.display = 'none';
                 securityPosts.style.display = 'none';
                 devPosts.style.display = 'grid';
             }
+
+            // 포스트 렌더링
+            renderCurrentView();
+        }
+
+        function parseMarkdown(markdown) {
+            // frontmatter 제거
+            markdown = markdown.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
+
+            // 마크다운을 HTML로 변환
+            let html = markdown
+                .replace(/\r\n/g, '\n')
+                .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+                .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+                .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+                .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width: 100%; border-radius: 8px; margin: 10px 0;">')
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.+?)\*/g, '<em>$1</em>')
+                .replace(/\n\n/g, '</p><p>');
+
+            html = '<p>' + html + '</p>';
+            html = html.replace(/<p><\/p>/g, '');
+            html = html.replace(/<p>(<h[1-3]>)/g, '$1').replace(/(<\/h[1-3]>)<\/p>/g, '$1');
+
+            return html;
+        }
+
+        function showPostContent(postId) {
+            const post = allPosts.find(p => p.id === postId);
+            if (!post) {
+                console.error('Post not found:', postId);
+                return;
+            }
+
+            const dialogBox = document.getElementById('dialogBox');
+            const dialogTitle = document.getElementById('dialogTitle');
+            const dialogContent = document.getElementById('dialogContent');
+
+            const categoryIcon = categoryNames[post.category] || post.category;
+            dialogTitle.innerHTML = `<span style="font-size: 1.5rem;">${categoryIcon.split(' ')[0]}</span> ${post.title}`;
+
+            // 마크다운 파일 fetch
+            fetch(post.path)
+                .then(response => response.text())
+                .then(markdown => {
+                    const htmlContent = parseMarkdown(markdown);
+
+                    dialogContent.innerHTML = `
+                        <div style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">
+                            📅 ${post.date}
+                        </div>
+                        <div style="line-height: 1.8;">
+                            ${htmlContent}
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Error loading post:', error);
+                    dialogContent.innerHTML = '<p>게시물을 불러올 수 없습니다.</p>';
+                });
+
+            dialogBox.classList.add('active');
         }
 
         document.addEventListener('keydown', (e) => {
