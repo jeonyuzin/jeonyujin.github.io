@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Room - Jeon Yuzin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Special+Elite&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 1000px;
+            background: #ffffff;
+            border-radius: 20px;
+            border: 3px solid #000000;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            overflow: hidden;
+        }
+
+        .game-header {
+            background: linear-gradient(to bottom, #000000, #1a1a1a);
+            border-bottom: 2px solid #333333;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .game-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+        }
+
+        .game-menu {
+            display: flex;
+            gap: 10px;
+        }
+
+        .menu-btn {
+            background: #ffffff;
+            border: 2px solid #000000;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #000000;
+            transition: all 0.3s;
+        }
+
+        .menu-btn:hover {
+            background: #000000;
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 250px;
+            grid-template-rows: 1fr auto;
+            background: #f5f5f5;
+            min-height: 600px;
+        }
+
+        .room-area {
+            grid-column: 1;
+            grid-row: 1;
+            position: relative;
+            background: #ffffff;
+            border-right: 2px solid #e0e0e0;
+            overflow: hidden;
+            padding: 0;
+        }
+
+        .room-area canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .room-floor {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%) perspective(600px) rotateX(60deg);
+            width: 80%;
+            height: 60%;
+            background: 
+                repeating-linear-gradient(
+                    90deg,
+                    #c4a57b 0px,
+                    #c4a57b 40px,
+                    #b8996f 40px,
+                    #b8996f 42px
+                ),
+                repeating-linear-gradient(
+                    0deg,
+                    #c4a57b 0px,
+                    #c4a57b 40px,
+                    #b8996f 40px,
+                    #b8996f 42px
+                );
+        }
+
+        .room-wall-left {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 30%;
+            height: 70%;
+            background: linear-gradient(to right, #f4e4c1, #e8d8b4);
+            border-right: 2px solid #d4c4a8;
+            transform-origin: bottom right;
+            transform: perspective(600px) rotateY(-45deg);
+        }
+
+        .room-wall-right {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 30%;
+            height: 70%;
+            background: linear-gradient(to left, #f4e4c1, #e8d8b4);
+            border-left: 2px solid #d4c4a8;
+            transform-origin: bottom left;
+            transform: perspective(600px) rotateY(45deg);
+        }
+
+        .object {
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .object:hover {
+            transform: translateY(-10px) scale(1.1);
+            filter: brightness(1.2);
+        }
+
+        .object-icon {
+            font-size: 3rem;
+            display: block;
+            filter: drop-shadow(3px 3px 5px rgba(0,0,0,0.3));
+        }
+
+        .object-label {
+            background: rgba(255,255,255,0.9);
+            border: 2px solid #8b4513;
+            border-radius: 8px;
+            padding: 3px 8px;
+            margin-top: 5px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #4a2511;
+            display: inline-block;
+        }
+
+        .recent-posts {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #ffffff;
+            border: 2px solid #000000;
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 20;
+        }
+
+        .posts-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #000000;
+            margin-bottom: 10px;
+            text-align: center;
+            background: #f0f0f0;
+            padding: 8px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .search-box {
+            margin-bottom: 10px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: white;
+            box-sizing: border-box;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #000000;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .page-btn {
+            background: white;
+            border: 2px solid #000000;
+            padding: 5px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #000000;
+            transition: all 0.3s;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: #000000;
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            font-size: 0.9rem;
+            color: #000000;
+            font-weight: bold;
+        }
+
+        .posts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .post-card {
+            padding: 12px;
+            border: 2px solid #000000;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 3px 3px 8px rgba(0,0,0,0.1);
+            background: #ffffff;
+        }
+
+        .post-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 5px 5px 20px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+
+        .post-date {
+            font-size: 0.75rem;
+            color: #666;
+            margin-bottom: 5px;
+            font-family: monospace;
+        }
+
+        .post-title {
+            font-weight: bold;
+            font-size: 0.95rem;
+            color: #000000;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .post-category {
+            font-size: 0.8rem;
+            background: #f0f0f0;
+            padding: 3px 8px;
+            border-radius: 5px;
+            display: inline-block;
+            border: 1px solid #e0e0e0;
+            color: #000000;
+        }
+
+        .mode-buttons-area {
+            grid-column: 1;
+            grid-row: 2;
+            background: #f5f5f5;
+            border-right: 2px solid #e0e0e0;
+            border-top: 2px solid #e0e0e0;
+            padding: 20px;
+        }
+
+        .mode-buttons-room {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .mode-btn-room {
+            flex: 1;
+            background: #ffffff;
+            border: 2px solid #000000;
+            border-radius: 12px;
+            padding: 18px 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #000000;
+            transition: all 0.3s ease;
+            font-family: 'Malgun Gothic', sans-serif;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .mode-btn-room:hover {
+            background: #f0f0f0;
+            transform: translateY(-5px);
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .mode-btn-room.active {
+            background: #000000;
+            color: #ffffff;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .sidebar {
+            grid-column: 2;
+            grid-row: 1 / 3;
+            background: #f5f5f5;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .profile-section {
+            background: white;
+            border: 2px solid #000000;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .character-img {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #000000, #333333);
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            border: 3px solid #000000;
+        }
+
+        .profile-name {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #000000;
+            margin-bottom: 5px;
+        }
+
+        .profile-role {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .item-list {
+            background: white;
+            border: 2px solid #000000;
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .item-list-title {
+            font-weight: bold;
+            color: #000000;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            text-align: center;
+            background: #f0f0f0;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .item {
+            background: #ffffff;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .item:hover {
+            background: #f0f0f0;
+            transform: translateX(5px);
+            border-color: #000000;
+        }
+
+        .item-icon {
+            font-size: 1.5rem;
+            margin-right: 8px;
+        }
+
+        .item.active {
+            background: #000000;
+            color: white;
+            border-color: #000000;
+        }
+
+        .item.active .item-icon {
+            filter: brightness(0) invert(1);
+        }
+
+        .dialog-box {
+            position: absolute;
+            top: 20px;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #ffffff;
+            border: 2px solid #000000;
+            border-radius: 15px;
+            padding: 20px;
+            padding-right: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 100;
+            overflow-y: auto;
+        }
+
+        .dialog-box.active {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dialog-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #000000;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dialog-content {
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #000000;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            background: #333333;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+            }
+
+            .room-area {
+                grid-column: 1;
+                grid-row: 1;
+                border-right: none;
+                min-height: 300px;
+            }
+
+            .mode-buttons-area {
+                grid-column: 1;
+                grid-row: 2;
+                border-right: none;
+            }
+
+            .sidebar {
+                grid-column: 1;
+                grid-row: 3;
+            }
+
+            .mode-buttons-room {
+                gap: 8px;
+            }
+
+            .mode-btn-room {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <div class="game-title">🔒 Security Room</div>
+            <div class="game-menu">
+                <button class="menu-btn" onclick="showInfo('home')">홈</button>
+                <button class="menu-btn" onclick="showInfo('about')">소개</button>
+                <button class="menu-btn" onclick="window.open('https://github.com/jeonyuzin')">GitHub</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- 방 영역 (블로그 포스트 영역) -->
+            <div class="room-area" id="roomArea">
+                <!-- 최신글 박스 -->
+                <div class="recent-posts" id="recentPostsBox" style="display: none;">
+                    <div class="posts-title">📌 Recent Posts</div>
+
+                    <!-- 검색창 -->
+                    <div class="search-box">
+                        <input type="text" id="searchInput" class="search-input" placeholder="🔍 검색어를 입력하세요...">
+                    </div>
+
+                    <!-- 포스트 컨테이너 -->
+                    <div class="posts-container" id="recentPosts" style="display: none;"></div>
+                    <div class="posts-container" id="securityPosts" style="display: none;"></div>
+                    <div class="posts-container" id="devPosts" style="display: none;"></div>
+                    <div class="posts-container" id="categoryPosts" style="display: none;"></div>
+
+                    <!-- 페이지네이션 -->
+                    <div class="pagination" id="pagination" style="display: none;">
+                        <button class="page-btn" id="prevBtn" onclick="changePage(-1)">◀ 이전</button>
+                        <div class="page-info" id="pageInfo">1 / 1</div>
+                        <button class="page-btn" id="nextBtn" onclick="changePage(1)">다음 ▶</button>
+                    </div>
+                </div>
+
+                <!-- 다이얼로그 박스 -->
+                <div class="dialog-box" id="dialogBox">
+                    <button class="close-btn" onclick="closeDialog()">✕</button>
+                    <div class="dialog-title" id="dialogTitle"></div>
+                    <div class="dialog-content" id="dialogContent"></div>
+                </div>
+            </div>
+
+            <!-- 버튼 영역 -->
+            <div class="mode-buttons-area">
+                <div class="mode-buttons-room">
+                    <button class="mode-btn-room" onclick="switchMode('recent')">📌 최신글</button>
+                    <button class="mode-btn-room" onclick="switchMode('security')">🔒 보안</button>
+                    <button class="mode-btn-room" onclick="switchMode('etc')">📝 기타</button>
+                </div>
+            </div>
+
+            <!-- 사이드바 -->
+            <div class="sidebar">
+                <div class="profile-section">
+                    <div class="character-img">🧑‍💻</div>
+                    <div class="profile-name">Jeon Yuzin</div>
+                    <div class="profile-role">Penetration Tester</div>
+                </div>
+
+                <div class="item-list">
+                    <div class="item-list-title">📂 Categories</div>
+                    
+                    <div id="securityCategories">
+                        <div class="item" onclick="showCategoryPosts('web')">
+                            <span class="item-icon">🌐</span>
+                            <span>Web Hacking</span>
+                        </div>
+
+                        <div class="item" onclick="showCategoryPosts('android')">
+                            <span class="item-icon">📱</span>
+                            <span>Android Security</span>
+                        </div>
+
+                        <div class="item" onclick="showCategoryPosts('ios')">
+                            <span class="item-icon">🍎</span>
+                            <span>iOS Security</span>
+                        </div>
+
+                        <div class="item" onclick="showCategoryPosts('windowsad')">
+                            <span class="item-icon">🪟</span>
+                            <span>Windows AD</span>
+                        </div>
+
+                        <div class="item" onclick="showCategoryPosts('ctf')">
+                            <span class="item-icon">🚩</span>
+                            <span>CTF Writeups</span>
+                        </div>
+
+                        <div class="item" onclick="showCategoryPosts('tools')">
+                            <span class="item-icon">🔨</span>
+                            <span>Tools & Setup</span>
+                        </div>
+                    </div>
+
+                    <div id="etcCategories" style="display: none;">
+                        <div class="item" onclick="showCategoryPosts('etc')">
+                            <span class="item-icon">📝</span>
+                            <span>ETC</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 카테고리별 배경색 (흑백 톤)
+        const categoryColors = {
+            web: "#f5f5f5",
+            android: "#e8e8e8",
+            ios: "#f0f0f0",
+            windowsad: "#eeeeee",
+            ctf: "#e5e5e5",
+            tools: "#f3f3f3",
+            etc: "#f8f8f8"
+        };
+
+        let postsData = {};
+        let allPosts = [];
+        let currentPage = 1;
+        let postsPerPage = 6;
+        let filteredPosts = [];
+        let searchQuery = '';
+
+        // JSON 데이터 로드 (파일 목록만)
+        fetch('posts-list.json')
+            .then(response => response.json())
+            .then(data => {
+                postsData = data.byCategory || {};
+                allPosts = data.posts || [];
+                console.log('Loaded posts:', allPosts.length);
+            })
+            .catch(error => {
+                console.error('Error loading posts:', error);
+            });
+
+        // 검색 입력 이벤트
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    searchQuery = e.target.value.toLowerCase();
+                    currentPage = 1;
+                    renderCurrentView();
+                });
+            }
+        });
+
+        // 카테고리 이름 매핑
+        const categoryNames = {
+            web: '🌐 Web Hacking',
+            android: '📱 Android Security',
+            ios: '🍎 iOS Security',
+            windowsad: '🪟 Windows AD',
+            ctf: '🚩 CTF Writeups',
+            tools: '🔨 Tools & Setup',
+            etc: '📝 ETC'
+        };
+
+        let currentMode = null;
+        let currentCategory = null;
+
+        function filterPosts(posts) {
+            if (!searchQuery) return posts;
+            return posts.filter(post =>
+                post.title.toLowerCase().includes(searchQuery)
+            );
+        }
+
+        function renderPosts(posts, containerId) {
+            const container = document.getElementById(containerId);
+
+            // 검색 필터링
+            filteredPosts = filterPosts(posts);
+
+            // 페이징 계산
+            const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
+            const startIdx = (currentPage - 1) * postsPerPage;
+            const endIdx = startIdx + postsPerPage;
+            const paginatedPosts = filteredPosts.slice(startIdx, endIdx);
+
+            // 포스트 렌더링
+            container.innerHTML = paginatedPosts.map(post => {
+                const bg = categoryColors[post.category] || '#f0f0f0';
+                const categoryIcon = categoryNames[post.category] || post.category;
+                return `
+                    <div class="post-card" style="background: ${bg};" onclick="showPostContent('${post.id}')">
+                        <div class="post-date">${post.date}</div>
+                        <div class="post-title">${post.title}</div>
+                        <div class="post-category">${categoryIcon}</div>
+                    </div>
+                `;
+            }).join('');
+
+            // 페이징 UI 업데이트
+            updatePagination(totalPages);
+        }
+
+        function updatePagination(totalPages) {
+            const pagination = document.getElementById('pagination');
+            const pageInfo = document.getElementById('pageInfo');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            if (totalPages > 1) {
+                pagination.style.display = 'flex';
+                pageInfo.textContent = `${currentPage} / ${totalPages}`;
+                prevBtn.disabled = currentPage === 1;
+                nextBtn.disabled = currentPage === totalPages;
+            } else {
+                pagination.style.display = 'none';
+            }
+        }
+
+        function changePage(direction) {
+            currentPage += direction;
+            renderCurrentView();
+        }
+
+        function renderCurrentView() {
+            if (currentCategory) {
+                const posts = postsData[currentCategory] || [];
+                renderPosts(posts, 'categoryPosts');
+            } else if (currentMode === 'recent') {
+                renderPosts(allPosts, 'recentPosts');
+            } else if (currentMode === 'security') {
+                const securityPosts = Object.keys(postsData)
+                    .filter(cat => ['web', 'android', 'ios', 'windowsad', 'ctf', 'tools'].includes(cat))
+                    .flatMap(cat => postsData[cat] || [])
+                    .sort((a, b) => new Date(b.date) - new Date(a.date));
+                renderPosts(securityPosts, 'securityPosts');
+            } else if (currentMode === 'etc') {
+                const etcPosts = Object.keys(postsData)
+                    .filter(cat => ['etc'].includes(cat))
+                    .flatMap(cat => postsData[cat] || [])
+                    .sort((a, b) => new Date(b.date) - new Date(a.date));
+                renderPosts(etcPosts, 'devPosts');
+            }
+        }
+
+        function showDialog(id, icon, title, content) {
+            const dialogBox = document.getElementById('dialogBox');
+            const dialogTitle = document.getElementById('dialogTitle');
+            const dialogContent = document.getElementById('dialogContent');
+
+            dialogTitle.innerHTML = `<span style="font-size: 2rem;">${icon}</span> ${title}`;
+            dialogContent.textContent = content;
+            
+            dialogBox.classList.add('active');
+        }
+
+        function closeDialog() {
+            const dialogBox = document.getElementById('dialogBox');
+            if (dialogBox) {
+                dialogBox.classList.remove('active');
+            }
+        }
+
+        function showInfo(type) {
+            if (type === 'home') {
+                showDialog('home', '🏠', '환영합니다!', '모의해킹과 취약점 진단을 공부하는 공간입니다.');
+            } else if (type === 'about') {
+                showDialog('about', '👤', 'About Me', '모의해킹 및 취약점 진단 전문 보안 연구자입니다.');
+            }
+        }
+
+        function showCategoryPosts(category) {
+            // 다이얼로그 닫기
+            closeDialog();
+
+            // 같은 카테고리 재클릭 시 홈으로
+            if (currentCategory === category) {
+                currentCategory = null;
+                document.querySelectorAll('.item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.getElementById('recentPostsBox').style.display = 'none';
+                return;
+            }
+
+            currentCategory = category;
+            currentPage = 1;
+            searchQuery = '';
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) searchInput.value = '';
+
+            const recentPostsBox = document.getElementById('recentPostsBox');
+            const postsTitle = document.querySelector('.posts-title');
+
+            if (!recentPostsBox || !postsTitle) return;
+
+            // 모든 버튼 비활성화
+            document.querySelectorAll('.mode-btn-room').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // 모든 카테고리 아이템 비활성화
+            document.querySelectorAll('.item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // 현재 클릭한 카테고리 활성화
+            event.currentTarget.classList.add('active');
+
+            // currentMode 초기화
+            currentMode = null;
+
+            // 제목 변경
+            postsTitle.textContent = categoryNames[category] || '📌 Recent Posts';
+
+            // 박스 보이기
+            recentPostsBox.style.display = 'block';
+
+            // 모든 포스트 컨테이너 숨기기
+            document.getElementById('recentPosts').style.display = 'none';
+            document.getElementById('securityPosts').style.display = 'none';
+            document.getElementById('devPosts').style.display = 'none';
+            document.getElementById('categoryPosts').style.display = 'grid';
+
+            // 카테고리 글 렌더링
+            renderCurrentView();
+        }
+
+        function switchMode(mode) {
+            const recentPostsBox = document.getElementById('recentPostsBox');
+            const postsTitle = document.querySelector('.posts-title');
+
+            // 다이얼로그 닫기
+            closeDialog();
+
+            // 같은 버튼 재클릭 시 홈으로
+            if (currentMode === mode) {
+                currentMode = null;
+                document.querySelectorAll('.mode-btn-room').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                recentPostsBox.style.display = 'none';
+                document.getElementById('securityCategories').style.display = 'block';
+                document.getElementById('etcCategories').style.display = 'none';
+                return;
+            }
+
+            currentMode = mode;
+            currentCategory = null;
+            currentPage = 1;
+            searchQuery = '';
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) searchInput.value = '';
+
+            // 모든 카테고리 아이템 비활성화
+            document.querySelectorAll('.item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // 제목을 기본으로 초기화
+            postsTitle.textContent = '📌 Recent Posts';
+
+            // 박스 보이기
+            recentPostsBox.style.display = 'block';
+
+            document.querySelectorAll('.mode-btn-room').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            const securityCat = document.getElementById('securityCategories');
+            const etcCat = document.getElementById('etcCategories');
+            const recentPosts = document.getElementById('recentPosts');
+            const securityPosts = document.getElementById('securityPosts');
+            const devPosts = document.getElementById('devPosts');
+            const categoryPosts = document.getElementById('categoryPosts');
+
+            // 카테고리 글 숨기기
+            categoryPosts.style.display = 'none';
+
+            if (mode === 'recent') {
+                document.querySelectorAll('.mode-btn-room')[0].classList.add('active');
+                securityCat.style.display = 'block';
+                etcCat.style.display = 'none';
+                recentPosts.style.display = 'grid';
+                securityPosts.style.display = 'none';
+                devPosts.style.display = 'none';
+            } else if (mode === 'security') {
+                document.querySelectorAll('.mode-btn-room')[1].classList.add('active');
+                securityCat.style.display = 'block';
+                etcCat.style.display = 'none';
+                recentPosts.style.display = 'none';
+                securityPosts.style.display = 'grid';
+                devPosts.style.display = 'none';
+            } else if (mode === 'etc') {
+                document.querySelectorAll('.mode-btn-room')[2].classList.add('active');
+                securityCat.style.display = 'none';
+                etcCat.style.display = 'block';
+                recentPosts.style.display = 'none';
+                securityPosts.style.display = 'none';
+                devPosts.style.display = 'grid';
+            }
+
+            // 포스트 렌더링
+            renderCurrentView();
+        }
+
+        function parseMarkdown(markdown) {
+            // frontmatter 제거
+            markdown = markdown.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
+
+            // 마크다운을 HTML로 변환
+            let html = markdown
+                .replace(/\r\n/g, '\n')
+                .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+                .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+                .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+                .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width: 100%; border-radius: 8px; margin: 10px 0;">')
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.+?)\*/g, '<em>$1</em>')
+                .replace(/\n\n/g, '</p><p>');
+
+            html = '<p>' + html + '</p>';
+            html = html.replace(/<p><\/p>/g, '');
+            html = html.replace(/<p>(<h[1-3]>)/g, '$1').replace(/(<\/h[1-3]>)<\/p>/g, '$1');
+
+            return html;
+        }
+
+        function showPostContent(postId) {
+            const post = allPosts.find(p => p.id === postId);
+            if (!post) {
+                console.error('Post not found:', postId);
+                return;
+            }
+
+            const dialogBox = document.getElementById('dialogBox');
+            const dialogTitle = document.getElementById('dialogTitle');
+            const dialogContent = document.getElementById('dialogContent');
+
+            const categoryIcon = categoryNames[post.category] || post.category;
+            dialogTitle.innerHTML = `<span style="font-size: 1.5rem;">${categoryIcon.split(' ')[0]}</span> ${post.title}`;
+
+            // 마크다운 파일 fetch
+            fetch(post.path)
+                .then(response => response.text())
+                .then(markdown => {
+                    const htmlContent = parseMarkdown(markdown);
+
+                    dialogContent.innerHTML = `
+                        <div style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">
+                            📅 ${post.date}
+                        </div>
+                        <div style="line-height: 1.8;">
+                            ${htmlContent}
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Error loading post:', error);
+                    dialogContent.innerHTML = '<p>게시물을 불러올 수 없습니다.</p>';
+                });
+
+            dialogBox.classList.add('active');
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeDialog();
+            }
+        });
+    </script>
+</body>
+</html>

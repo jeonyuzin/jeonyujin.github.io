@@ -3105,8 +3105,8 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('btn-blog').addEventListener('click', () => {
                 console.log('블로그 선택됨');
                 hideSpeechBubble();
-                // TODO: 블로그 페이지로 이동
-                window.open('https://jeonyujin.github.io/blog', '_blank');
+                // 블로그 페이지로 이동
+                window.location.href = 'index_blog.html';
             });
 
             // 말풍선 위치 업데이트
@@ -4128,17 +4128,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (mode === 'profile') {
                 sceneState = 'SELECT_PROFILE';
-                console.log('[메뉴] Profile 선택 - index_profile.html로 이동');
-                // index_profile.html로 이동
-                setTimeout(() => {
-                    window.location.href = 'index_profile.html';
-                }, 800);
+                console.log('[메뉴] Profile 선택 - CMD 창 열기');
+                // 프로필 버튼 클릭 시 리모콘 동작 후 CMD 창 열기
+                playRemoteControlAction(() => {
+                    openCmdWindow();
+                });
             } else if (mode === 'blog') {
                 sceneState = 'SELECT_BLOG';
                 console.log('[메뉴] Blog 선택 - 블로그로 이동');
-                // 블로그로 이동
+                // 블로그 페이지로 이동
                 setTimeout(() => {
-                    window.location.href = 'https://jeonyujin4209.github.io/';
+                    window.location.href = 'index_blog.html';
                 }, 800);
             }
         };
